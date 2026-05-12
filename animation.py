@@ -5,6 +5,7 @@ import imageio_ffmpeg
 import pylab as py
 import numpy as np
 from config import *
+import os
 from utils import prepare_animation_data
 matplotlib.rcParams['animation.ffmpeg_path'] = imageio_ffmpeg.get_ffmpeg_exe()
 
@@ -20,12 +21,16 @@ def init():
 
 
 # Animation function. Reads out the positon coordinates sequentially
-choice=input("1：基于MLP评估结果生成，2：基于EGNN评估结果生成")
+choice=input("1：基于MLP评估结果生成，2：基于EGNN评估结果生成,3:基于原始数据样本集")
 
 if(choice=="1"):
     X=np.load(MLP_evaluate_path)
 if(choice=="2"):
     X=np.load(EGNN_evaluate_path)
+if(choice=="3"):
+    X=np.load(os.path.join("data","better_sample_X.npy"))
+
+print(X.shape)
 
 r,rj,t=prepare_animation_data(X,dt=0.1)
 print(r[:100])
