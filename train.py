@@ -2,6 +2,7 @@ import jax
 import jax.numpy as jnp
 import optax
 import haiku as hk
+import math
 from models import MLP_MAKER,EGNN_MAKER
 from utils import Data_Iter,compute_physical_quantities
 
@@ -19,10 +20,13 @@ def train(X,Y,model_name,output_dim,hidden_dim,batch_size,lr_start=1e-3,lr_end=1
         case _:
             assert 1==0,"没有此模型！"
 
+    steps_per_epoch = math.ceil(X.shape[0]/batch_size)
+    transition_steps = max(1, num_epoches * steps_per_epoch)
+
     schedule = optax.linear_schedule(
     init_value=lr_start,
     end_value=lr_end,
-    transition_steps=num_epoches
+    transition_steps=transition_steps
     )
 
 
@@ -84,5 +88,4 @@ def train(X,Y,model_name,output_dim,hidden_dim,batch_size,lr_start=1e-3,lr_end=1
         epoch_loss.append(epoch_loss_)
     
     return params,model,epoch_loss
-
 

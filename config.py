@@ -21,10 +21,10 @@ EGNN_evaluate_path=os.path.join(evafolder,"EGNN_eva.npy")
 
 BATCH_SIZE=512
 HIDDEN_DIM=2048
-NUM_EPOCHES=50
+NUM_EPOCHES=100
 
-Lr_start_MLP=1e-2
-Lr_end_MLP=1e-3
+Lr_start_MLP=1e-3
+Lr_end_MLP=1e-4
 
 Lr_start_EGNN=1e-2
 Lr_end_EGNN=1e-3
