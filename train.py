@@ -5,7 +5,7 @@ import haiku as hk
 from models import MLP_MAKER,EGNN_MAKER
 from utils import Data_Iter,compute_physical_quantities
 
-def train(X,Y,model_name,output_dim,hidden_dim,batch_size,lr_start=1e-3,lr_end=11e-5,lrE=1,lrL=1,X_scaler=None,Y_scaler=None,num_epoches=50,seed=42):
+def train(X,Y,model_name,output_dim,hidden_dim,batch_size,lr_start=1e-3,lr_end=11e-5,lrE=1,lrL=1,weight_decay_rate=1e-4,X_scaler=None,Y_scaler=None,num_epoches=50,seed=42):
 
     key=jax.random.PRNGKey(seed)
     X=jnp.array(X)
@@ -28,7 +28,10 @@ def train(X,Y,model_name,output_dim,hidden_dim,batch_size,lr_start=1e-3,lr_end=1
 
 
     params=model.init(key,jnp.zeros((1,X.shape[-1])),is_training=True)
-    optimizer=optax.adam(schedule)
+    optimizer = optax.chain(
+    optax.add_decayed_weights(weight_decay_rate), 
+    optax.adam(schedule)
+    )
     opt_state=optimizer.init(params)
 
     @jax.jit(static_argnames=['is_training','X_scaler','Y_scaler'])
@@ -62,7 +65,7 @@ def train(X,Y,model_name,output_dim,hidden_dim,batch_size,lr_start=1e-3,lr_end=1
     @jax.jit(static_argnames=['is_training','X_scaler','Y_scaler'])
     def update(params,opt_state,x,y,key,is_training=True,lrE=lrE,lrL=lrL,X_scaler=X_scaler,Y_scaler=Y_scaler):
         grads=jax.grad(loss)(params,x,y,key,is_training,lrE=lrE,lrL=lrL,X_scaler=X_scaler,Y_scaler=Y_scaler)
-        updates,opt_state=optimizer.update(grads,opt_state)
+        updates,opt_state=optimizer.update(grads,opt_state,params=params)
         params=optax.apply_updates(params,updates)
         return params,opt_state
 

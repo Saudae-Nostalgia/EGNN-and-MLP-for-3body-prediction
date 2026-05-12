@@ -3,17 +3,18 @@ import utils
 from train import train
 import numpy as np
 import math
-from evaluate import evaluate,evaluate_N
+from evaluate import evaluate,evaluate_N,try_output
 from sklearn.model_selection import KFold
 import jax.numpy as jnp
 
 X,Y=utils.Data_Loader(X_path,Y_path)
-    
-X_standard=utils.Standarder()
-Y_standard=utils.Standarder()
+Y0=Y
+Y=Y-X
+print(X[1000:1005],Y[1000:1005])
+Standard=utils.Standarder()
 
-X=X_standard.fit_transform(X)
-Y=Y_standard.fit_transform(Y)
+X=Standard.fit_transform(X)
+Y=Standard.transform(Y)
 
 def Train_model(X,Y,choice1,choice2):
 
@@ -29,6 +30,7 @@ def Train_model(X,Y,choice1,choice2):
             lr_end=Lr_end_MLP,
             lrE=LrE,
             lrL=LrL,
+            weight_decay_rate=WEIGHT_DECAY_RATE,
             X_scaler=None,
             Y_scaler=None,
             num_epoches=NUM_EPOCHES,
@@ -46,6 +48,7 @@ def Train_model(X,Y,choice1,choice2):
             lr_end=Lr_end_EGNN,
             lrE=LrE,
             lrL=LrL,
+            weight_decay_rate=WEIGHT_DECAY_RATE,
             X_scaler=None,
             Y_scaler=None,
             num_epoches=NUM_EPOCHES,
@@ -88,17 +91,17 @@ def Eval_model_N(X,choice2):
 
     if(choice2=="1"):
         params=utils.load_params_npz(MLP_weight_path)
-        X_list=evaluate_N("MLP",params,X,X.shape[-1],HIDDEN_DIM,num_iter=1000,seed=SEED,is_training=False)
+        X_list=evaluate_N("MLP",params,X,X.shape[-1],HIDDEN_DIM,num_iter=100,seed=SEED_Eva,is_training=False)
         return X_list
 
     if(choice2=="2"):
         params=utils.load_params_npz(EGNN_weight_path)
-        X_list=evaluate_N("EGNN",params,X,X.shape[-1],HIDDEN_DIM,num_iter=1000,seed=SEED,is_training=False)
+        X_list=evaluate_N("EGNN",params,X,X.shape[-1],HIDDEN_DIM,num_iter=100,seed=SEED_Eva,is_training=False)
         return X_list
 
 if __name__=="__main__":
 
-    choice1=input("选择模式：1.训练 2.评估 3. 5折交叉验证 4.N次连续评估")
+    choice1=input("选择模式：1.训练 2.评估 3. 5折交叉验证 4.N次连续评估 5.验证下一步")
     choice2=input("选择模型：1.MLP 2.EGNN")
 
     if choice1=="1":
@@ -139,7 +142,7 @@ if __name__=="__main__":
         X_list=Eval_model_N(X,choice2)
         X_list=jnp.array(X_list)
         X_list=X_list.reshape((X_list.shape[0],X_list.shape[-1]))
-        X_list=X_standard.inverse_transform(X_list)
+        X_list=Standard.inverse_transform(X_list)
         X_list=np.array(X_list)
 
         print(f"前五行示例：")
@@ -150,3 +153,13 @@ if __name__=="__main__":
 
         if(choice2=="2"):
             np.save(EGNN_evaluate_path,X_list)
+
+    if choice1=="5":
+
+        if choice2=="1":
+            params=utils.load_params_npz(MLP_weight_path)
+            try_output("MLP",params,X,Y0,X.shape[-1],HIDDEN_DIM,Standard,seed=SEED,is_training=False)
+
+        if choice2=="2":
+            params=utils.load_params_npz(EGNN_weight_path)
+            try_output("EGNN",params,X,Y0,X.shape[-1],HIDDEN_DIM,Standard,seed=SEED,is_training=False)

@@ -8,22 +8,28 @@ import numpy as np
 def MLP_MAKER(output_dim,hidden_num=256):
 
     def forward(X,is_training):
+   
 
         X=hk.Linear(hidden_num)(X)
-        X=jax.nn.relu(X)
-        if is_training==True:
-            X=hk.dropout(hk.next_rng_key(),0.2,X)
+        X=jax.nn.silu(X)
 
+        X0=X 
         X=hk.Linear(hidden_num)(X)
-        X=jax.nn.relu(X)
-        if is_training==True:
-            X=hk.dropout(hk.next_rng_key(),0.2,X)
+        X=jax.nn.silu(X)
+        X = hk.LayerNorm(axis=-1, create_scale=True, create_offset=True)(X)
+        X = X + X0
+    
+        X=hk.Linear(hidden_num)(X)
+        X=jax.nn.silu(X)
+
+        X0=X
+        X = hk.LayerNorm(axis=-1, create_scale=True, create_offset=True)(X)
+        X=hk.Linear(hidden_num)(X)
+        X=jax.nn.silu(X)
+        X = X + X0
         
         X=hk.Linear(hidden_num)(X)
-        X=jax.nn.relu(X)
-        if is_training==True:
-            X=hk.dropout(hk.next_rng_key(),0.2,X)
-  
+        X=jax.nn.silu(X)
 
         X=hk.Linear(output_dim)(X)
 
@@ -54,9 +60,6 @@ def EGNN_MAKER(hidden_num=16,init_stddev=0.01,depth=3):
         
         mij=mlp(mij)
 
-        if(is_training==True):
-            mij=hk.dropout(hk.next_rng_key(),rate=0.2,x=mij)
-
         return mij
 
 
@@ -65,9 +68,6 @@ def EGNN_MAKER(hidden_num=16,init_stddev=0.01,depth=3):
         mlp = hk.nets.MLP([hidden_num, h.shape[-1]], w_init=hk.initializers.TruncatedNormal(init_stddev), activation=jax.nn.silu, name=f"node_mlp_{d}")
         hm=mlp(hm)
 
-        if(is_training==True):
-            hm=hk.dropout(hk.next_rng_key(),rate=0.2,x=hm)
-        
         return hm+h
 
 

@@ -61,14 +61,12 @@ def test1():
     print(X[5])
 
     X_standard=utils.Standarder()
-    Y_standard=utils.Standarder()
-
+  
     X_norm=X_standard.fit_transform(X)
-    Y_norm=Y_standard.fit_transform(Y)
 
     print(X_norm[5])
-    print(X_norm[500])
-    print(X_norm[501])
+    X_result=X_standard.inverse_transform(X_norm)
+    print(X_result[5])
 
 
 def test2():
@@ -81,4 +79,5 @@ def test2():
      x,h=Trans(X)
      X=Inverse_Trans(x,h)
      print(X[5])
-test2()
+
+test1()

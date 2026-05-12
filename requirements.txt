@@ -1,0 +1,9 @@
+jax>=0.4.16
+jaxlib>=0.4.16
+dm-haiku>=0.0.9
+optax>=0.1.5
+numpy>=1.24
+matplotlib>=3.7
+scikit-learn>=1.2
+ipython>=8.0
+imageio_ffmpeg

@@ -28,6 +28,7 @@ if(choice=="2"):
     X=np.load(EGNN_evaluate_path)
 
 r,rj,t=prepare_animation_data(X,dt=0.1)
+print(r[:100])
 print(r[-11:])
 
 
