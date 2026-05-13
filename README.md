@@ -3,7 +3,17 @@ EGNN and MLP for 3body prediction via JAX+Haiku
 #### 这个project的目的是用deep learning来预测三体运动轨迹。基于前人开发的经典力学体系下传统计算物理方法（RK4）求解三体（太阳、地球、木星）运动轨迹的程序，从中提取出数据集。将数据集用于神经网络训练，最后用训练出的参数以及一组随机的初值连续多次迭代，产生一条完整轨迹，追求这条轨迹的准确性就是本次的目的。
 config中存储了一些参量，utils存储了一些工具函数，others中是仅在测试时使用的一些函数（现已无用），model中定义两个模型（MLP、EGNN）的函数，train是训练函数，evaluate是评估函数（两种），在main中进行调用。写到后面结构已经有些混乱，比如因为MLP和EGNN使用同一个训练/评估函数但是输入参数不同的缘故，导致MLP的参数在main.py中修改，而EGNN的参数在train/evaluate函数中修改。
 
-data中的ml3b_X/Y是原始数据，X/Y_new是扩充后的正在使用的数据。
+data中的better_X/Y是原始数据，X/Y_new是扩充后的正在使用的数据。
+
+### 使用方法：
+
+抽样检查轨道状态：python Better_data_producer.py preview --seed 0
+
+抽样检查轨道状态并保存动画：python Better_data_producer.py preview --seed 0 --save-animation --animation-path better_orbit.mp4
+
+ 数据集批量制作：python Better_data_producer.py batch
+
+
 
 ### 过程
 
@@ -102,4 +112,9 @@ debug了一两个小时也没找到问题，后来换了Gemini问了一下发现
 之前设定的2048神经元太多了（而且会爆显存），更改到了512神经元，利用60万数据进行训练。经过5折交叉验证，train loss来到0.0000015附近，evaluate loss来到0.00009附近。利用数据进行N次评估，可以得到比较像样的三体轨道。
 
 下一步计划：微调参数看看是否有更好效果；故意增加一些之前被判定为错误的操作（如dropout），来直观感受对结果产生的破坏有多大。
+
+思考怎么减少长程误差。
+
+小改动方案：由于v=dr/dt，让损失函数中速度的权重更高，速度会更准确，减少累积误差。然而这是物理学的看法，但是对于网络来说v和r是平等的特征输入，是否有更好的效果还需验证。
+大改动方案：引入之前提到的自回归Transformer。
 
