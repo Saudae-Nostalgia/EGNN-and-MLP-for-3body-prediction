@@ -109,6 +109,12 @@ class Standarder:
             raise ValueError("尚未拟合")
         return (X-self.mean_)/(self.std_+self.eps)
 
+    def transform_delta(self,delta):
+        if self.std_ is None:
+            raise ValueError("Standarder has not been fitted")
+            raise ValueError("灏氭湭鎷熷悎")
+        return delta/(self.std_+self.eps)
+
     def fit_transform(self,X):
         self.fit(X)
         return self.transform(X)
@@ -117,6 +123,12 @@ class Standarder:
         if self.mean_ is None or self.std_ is None:
             raise ValueError("尚未拟合")
         return X_scaled * (self.std_ + self.eps) + self.mean_
+
+    def inverse_transform_delta(self,delta_scaled):
+        if self.std_ is None:
+            raise ValueError("Standarder has not been fitted")
+            raise ValueError("灏氭湭鎷熷悎")
+        return delta_scaled * (self.std_ + self.eps)
     
 def rotate_data(data, theta):
 

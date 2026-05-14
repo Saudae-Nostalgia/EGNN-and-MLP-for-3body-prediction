@@ -7,14 +7,14 @@ from evaluate import evaluate,evaluate_N,try_output
 from sklearn.model_selection import KFold
 import jax.numpy as jnp
 
-X,Y=utils.Data_Loader(X_path,Y_path)
-Y0=Y
-Y=Y-X
-print(X[1000:1005],Y[1000:1005])
+X_raw,Y_raw=utils.Data_Loader(X_path,Y_path)
+Y0=Y_raw
+Y_delta=Y_raw-X_raw
+print(X_raw[1000:1005],Y_delta[1000:1005])
 Standard=utils.Standarder()
 
-X=Standard.fit_transform(X)
-Y=Standard.transform(Y)
+X=Standard.fit_transform(X_raw)
+Y=Standard.transform_delta(Y_delta)
 
 def Train_model(X,Y,choice1,choice2):
 

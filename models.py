@@ -31,7 +31,9 @@ def MLP_MAKER(output_dim,hidden_num=256):
         X=hk.Linear(hidden_num)(X)
         X=jax.nn.silu(X)
 
-        X=hk.Linear(output_dim)(X)
+        X=hk.Linear(output_dim-3)(X)
+        mass_delta = jnp.zeros((X.shape[0], 3), dtype=X.dtype)
+        X = jnp.concatenate([mass_delta, X], axis=-1)
 
         return X
     
@@ -108,7 +110,6 @@ def EGNN_MAKER(hidden_num=16,init_stddev=0.01,depth=3):
 
     return hk.transform(forward)
     
-
 
 
 

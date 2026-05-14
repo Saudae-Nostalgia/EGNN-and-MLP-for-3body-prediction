@@ -98,6 +98,9 @@ def try_output(model_name,params,X,Y0,output_dim,hidden_dim,Standard,seed=42,is_
 
     print(f"输出delta（归一化）：{X_iter}")
 
+    X_delta_inverse=Standard.inverse_transform_delta(X_iter)
+    print(f"delta original scale:{X_delta_inverse}")
+
     X_iter = X_iter.at[0, :3].set(X_iter0[0, :3])
     X_iter = X_iter.at[0, 3:].add(X_iter0[0, 3:])
     print(f"输出（归一化）：{X_iter}")
